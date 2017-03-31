@@ -114,7 +114,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 
 	if(!text1.isEmpty())
 	{
-		text=text1.replaceAll("[\\(\\)\\?\\:\\-&gt;]","");
+		text=text1.replaceAll("[\\(\\)\\?\\:]","");
 		text=text.replaceAll("s/p","");
 		//text=text.replaceAll("S/B","");
 		//text=text.replaceAll("Q/S","");
@@ -126,7 +126,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		
 	}else if(!text2.isEmpty()){
 
-		text=text2.replaceAll("[\\(\\)\\?\\:\\-&gt;]","");
+		text=text2.replaceAll("[\\(\\)\\?\\:]","");
 		text=text.replaceAll("s/p","");
 		//text=text.replaceAll("S/B","");
 		//text=text.replaceAll("Q/S","");
@@ -136,7 +136,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		tag="PresentingComplaints";
 	}else if(!text3.isEmpty()){
 
-		text=text3.replaceAll("[\\(\\)\\?\\:\\-&gt;]","");
+		text=text3.replaceAll("[\\(\\)\\?\\:]","");
 		text=text.replaceAll("s/p","");
 		//text=text.replaceAll("S/B","");
 		//text=text.replaceAll("Q/S","");
@@ -146,7 +146,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		tag="DischargeInsSearch";
 	}else if(!text4.isEmpty()){
 
-		text=text4.replaceAll("[\\(\\)\\?\\:\\-&gt;]","");
+		text=text4.replaceAll("[\\(\\)\\?\\:]","");
 		text=text.replaceAll("s/p","");
 		//text=text.replaceAll("S/B","");
 		//text=text.replaceAll("Q/S","");
