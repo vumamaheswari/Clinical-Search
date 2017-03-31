@@ -1,10 +1,10 @@
 <HTML>
     <HEAD>
-        <TITLE>Submitting PMR query</TITLE>
+        <TITLE>Search Patient's PMR to retrieve CPGs</TITLE>
     </HEAD>
   <body bgcolor="#ffffe">
     <BODY>
-        <H1>Submitting PMR query</H1>
+        <H1>Search Patient's PMR to retrieve CPGs</H1>
         <FORM ACTION="medicalsearch.jsp" METHOD="POST">
             PastMedicalHistory:
             <BR>  
