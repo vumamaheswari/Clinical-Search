@@ -100,7 +100,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 
 	text1=request.getParameter("PastMedicalHistory");
 	text2=request.getParameter("PresentingComplaints");
-     text3=request.getParameter("DischargeInsSearch");
+        text3=request.getParameter("DischargeInsSearch");
 	text4=request.getParameter("OrderedMedSearch");
 	
 	String tag="";
@@ -120,7 +120,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		//text=text.replaceAll("Q/S","");
 		text=text.replaceAll("a/w","");
 		text=text.replaceAll("c/s","");
-		text=text.replaceAll("&lt","");
+		text1=text.replaceAll("&lt","");
 		
 		tag="PastMedicalHistory";
 		
@@ -132,7 +132,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		//text=text.replaceAll("Q/S","");
 		text=text.replaceAll("a/w","");
 		text=text.replaceAll("c/s","");
-		text=text.replaceAll("&lt","");
+		text2=text.replaceAll("&lt","");
 		tag="PresentingComplaints";
 	}else if(!text3.isEmpty()){
 
@@ -142,7 +142,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 		//text=text.replaceAll("Q/S","");
 		text=text.replaceAll("a/w","");
 		text=text.replaceAll("c/s","");
-		text=text.replaceAll("&lt","");
+		text3=text.replaceAll("&lt","");
 		tag="DischargeInsSearch";
 	}else if(!text4.isEmpty()){
 
@@ -152,9 +152,10 @@ import ="edu.stanford.nlp.ling.Sentence"
 		//text=text.replaceAll("Q/S","");
 		text=text.replaceAll("a/w","");
 		text=text.replaceAll("c/s","");
-		text=text.replaceAll("&lt","");
+		text4=text.replaceAll("&lt","");
 		tag="OrderedMedications";
 	}
+	text =" "+text1+" "+text2+" "+text3+" "+text4+" ";
 	}
 		
 	out.println("Query is"+text);
