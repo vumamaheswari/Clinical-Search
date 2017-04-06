@@ -10,7 +10,7 @@ import java.util.Hashtable;
 public class URLtoFilename {
     
     public static Hashtable<String, String> FileNameToURL = new Hashtable<String, String>();
-    public static BufferedReader urlReader= IOHelper.getBufferedReader("./resource/url/url_to_FilenameMap");
+    public static BufferedReader urlReader= IOHelper.getBufferedReader("./resource/url/url_to_FilenameMap.txt");
     
     public static void main(String[] args)
     {
