@@ -78,7 +78,6 @@ import ="edu.stanford.nlp.ling.Sentence"
 %>
 
 <%@page import="java.util.List"%>
-<%@page import="com.nitya.syntel.*"%>
 <HTML>
     <HEAD>
         <TITLE>Reading Guidelines</TITLE>
