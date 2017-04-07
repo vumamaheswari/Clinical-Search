@@ -75,7 +75,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 %>
 
 <%@page import="java.util.List"%>
-<%@page import="com.nitya.syntel.*"%>
+
     
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 
