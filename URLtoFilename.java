@@ -10,7 +10,7 @@ import java.util.Hashtable;
 public class URLtoFilename {
     
     public static Hashtable<String, String> FileNameToURL = new Hashtable<String, String>();
-    public static BufferedReader urlReader= IOHelper.getBufferedReader("./resource/url/url_to_FilenameMap.txt");
+    public static BufferedReader urlReader= IOHelper.getBufferedReader("/home/vumamaheswari/medProject/apache-nutch-1.4-bin/resource/url/url_to_FilenameMap.txt");
     
     public static void main(String[] args)
     {
@@ -23,15 +23,17 @@ public class URLtoFilename {
       	String currentLine = null;
           int FileName = 0;
        	while ((currentLine = IOHelper.readLineFromBufferedReader(urlReader)) != null) {
+       	
 
-		String[] line=currentLine.split("|");		
-		String URL=line[0].toString().trim();
+		String[] line=currentLine.split(".pdf");		
+		String URL=line[0].toString().trim()+".pdf";
 		String filename=line[1].toString().trim();
+		System.out.println(URL+"\t"+filename);
 		writeURL(filename, URL);
 
     }//while
     IOHelper.closeBufferedReader(urlReader);
-    serializeHashTable(FileNameToURL, "./medurls/FileNameToURL.ser");
+    serializeHashTable(FileNameToURL, "/home/vumamaheswari/medProject/apache-nutch-1.4-bin/medurls/FileNameToURL.ser");
    
 
     }
@@ -49,11 +51,11 @@ public class URLtoFilename {
     {
     try{
     Hashtable current=null;
-     ObjectInputStream serReader = IOHelper.getObjectInputStream("./medurls/FileNameToURL.ser");
+     ObjectInputStream serReader = IOHelper.getObjectInputStream("/home/vumamaheswari/medProject/apache-nutch-1.4-bin/medurls/FileNameToURL.ser");
      while ((current = (Hashtable)IOHelper.readObjectFromInputStream(serReader)) != null) {
         System.out.println("The content is"+current);
     }
-    IOHelper.closeObjectInputStream(serReader);
-    }catch(Exception e){}
+   	IOHelper.closeObjectInputStream(serReader);
+    }catch(Exception e){e.printStackTrace();}
     }
 }
