@@ -1,6 +1,5 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
-
 <%@page import="org.apache.lucene.search.ScoreDoc"%>
 <%@page import="org.apache.lucene.search.TopDocs"%>
 <%@page import="org.apache.lucene.util.Version"%>
@@ -14,7 +13,6 @@
 <%@page import="org.apache.lucene.queryparser.classic.QueryParser"%>
 <%@page import="org.apache.lucene.search.Query"%>
 <%@page import="org.apache.lucene.analysis.Analyzer"%>
-
 <%@page import="org.apache.lucene.search.IndexSearcher"%>
 <%@page 
 import ="java.util.regex.Matcher"
@@ -257,7 +255,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 	}
 	text=""+text1+""+text2+""+text3+""+text4+"";
 	}	
-	out.println("Query is"+text);
+	//out.println("Query is"+text);
 	if(!text.isEmpty())
 	{
 
@@ -274,14 +272,25 @@ import ="edu.stanford.nlp.ling.Sentence"
 	ArrayList disInst=new ArrayList();
 	ArrayList omedline=new ArrayList();
 	
+	//Store the ontology based results seperately
+	ArrayList pmh_onto=new ArrayList();
+	ArrayList pcom_onto=new ArrayList();
+	ArrayList disInst_onto=new ArrayList();
+	ArrayList omedline_onto=new ArrayList();
+	
+	//Overall results
+	
+	ArrayList Overall_onto=new ArrayList();
+	ArrayList Overall=new ArrayList();
+	
 	String q="";
-	                            int hitsPerPage=10;
+	                            int hitsPerPage=20;
 
 	//text=text.replaceAll("null","");
 	//out.println("I am not null"+text);
 	 try {
-                	    String indexDir="/home/vumamaheswari/CPG-Index"; 
-			    String ontologyindex="/home/vumamaheswari/SNOMED-Index";
+                	    String indexDir=new File("CPG-Index/CPG-Index").getAbsolutePath(); 
+			    String ontologyindex=new File("SNOMED-Index/SNOMED-Index").getAbsolutePath();
 			    
                             String field="fullstring";
 			    if(tag.equals("overall"))
@@ -305,7 +314,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
 						if(ontology_con!=null && onto_check == true){
-						pmh=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						pmh_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -326,7 +335,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
 						if(ontology_con!=null && onto_check == true){
-						pcom=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						pcom_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -345,7 +354,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
 						if(ontology_con!=null && onto_check == true){
-						disInst=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						disInst_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -364,7 +373,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
 						if(ontology_con!=null && onto_check == true){
-						omedline=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						omedline_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -378,23 +387,29 @@ import ="edu.stanford.nlp.ling.Sentence"
 				  result_new.addAll(pcom);
 				 result_new.addAll(disInst);
 				 result_new.addAll(omedline);
+				 
+				   result_new.addAll(pmh_onto);
+				  result_new.addAll(pcom_onto);
+				 result_new.addAll(disInst_onto);
+				 result_new.addAll(omedline_onto);
 				
 			    }//if overall 
 			    else
 			    {
 					 q= delSpaces(text.toString().trim());
-							    q=symbolRemoval(q);
-	    		    	
-					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycon"+ontology_con.toString().trim());
+					 q=symbolRemoval(q);
+					 ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
+					 System.out.println("ontologycon"+ontology_con.toString().trim());
 						if(ontology_con!=null && onto_check == true){
-						result_new=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						Overall_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
-						result_new=luceneSearch(q,indexDir,field,hitsPerPage, false);
+						Overall=luceneSearch(q,indexDir,field,hitsPerPage, false);
 						}
 
+					result_new.addAll(Overall);
+					result_new.addAll(Overall_onto);
 			    }
 
 
@@ -402,23 +417,30 @@ import ="edu.stanford.nlp.ling.Sentence"
 
 	result_sort=sortResults(result_new, q);
 	final_result=Freq_Sorting(result_sort);
-
-	FileInputStream fis=new FileInputStream("/home/vumamaheswari/opt/apache-tomcat-8.5.11/webapps/medSearch/FileNameToURL.ser");
+	File currentDir = new File(".");//current dir
+	String path=getServletContext().getRealPath("/FileNameToURL.ser");
+	
+	FileInputStream fis=new FileInputStream(new File("FileNameToURL.ser").getAbsoluteFile().getAbsolutePath());
 	//File Input Stream for reading the URL 
 	ObjectInputStream ois=new ObjectInputStream(fis);				
 	Hashtable fileList=(Hashtable)ois.readObject();
 	ois.close();//closing object stream 
 	fis.close();//closing file stream
 	
-	out.println("Hash table size"+fileList.size());
+	out.println("Total Hits:"+final_result.size());
 	   for (int h = 0; h < final_result.size(); h++) {
             Object[] resultobj= (Object[]) final_result.get(h);
            System.out.println("The sorted results"+resultobj[0]+resultobj[1]+"PageNumber"+resultobj[2]+"topic"+resultobj[3]+"level"+resultobj[4]+"year"+resultobj[5]+"classification level"+resultobj[6]);
 
-String newoutput=Highlightwords(text,(String)resultobj[1],"black");
+String newoutput=Highlightwords(text,ontology_con,(String)resultobj[1],"black");
 String url= (String)fileList.get(resultobj[7]);
 			if(url!=null){//FixMe
 			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
+			}
+			else
+			{
+url="https://www.moh.gov.sg/content/dam/moh_web/HPP/Doctors/cpg_medical/current/2014/diabetes_mellitus/cpg_Diabetes%20Mellitus%20Summary%20Card%20-%20Jul%202014.pdf";
+			resultset.add("<p>"+"<a href = "+url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
 			}
         }//for
 	  
@@ -578,7 +600,9 @@ String url= (String)fileList.get(resultobj[7]);
 		//Object hit_result[] = new Object[1];
 		String fsn=doc.get("SNOMED_FSN").toString().trim();
 		//hit_result[0] =fsn;
+		
 		ontology_con.add(fsn);
+		
 		
 	}
 
@@ -717,16 +741,29 @@ return NN.toString().trim();
     return comwords;
 }
 %>
-<%!  public String Highlightwords(String highlight, String content, String color) {
+<%!  public String Highlightwords(String highlight, ArrayList ontocons,String content, String color) {
 
 
 	 String delimiters = "\\s+|,\\s*|\\.\\s*";
 
 	 // analyzing the string 
 	 String[] tokensVal = highlight.split(delimiters);
+	 String[] tokensVal_onto=new String[ontocons.size()];
  	   // prints the number of tokens
-	 System.out.println("Count of tokens = " + tokensVal.length);
-	    
+ 	 if(ontocons.size()>1)
+ 	 {
+ 	 	for(int i=0;i<ontocons.size();i++)
+ 	 	{
+ 	 		String ontostr=ontocons.get(i).toString().trim();
+ 	 		
+ 	 		tokensVal_onto[i]=ontostr;
+ 	 		
+ 	 	}
+ 	
+ 	 highlight=tokensVal_onto.toString();
+	 }
+	
+  
 	 for(String token : tokensVal) {
 	 	System.out.print(token);
 	  
@@ -739,11 +776,29 @@ return NN.toString().trim();
 		   content = matcher.replaceAll("<B>" + matcher.group(i) + "</B>");
         }
     	}
+    	
+    		 if(tokensVal_onto!=null) {
+    		 for( String token_onto : tokensVal_onto) {
+	 
+	  
+	java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + token_onto + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
+     java.util.regex.Matcher matcher_onto = pattern.matcher(content);
+	while (matcher_onto.find()) {
+       
+        for (int i = 0; i <= matcher_onto.groupCount(); i++) {
+		
+		   content = matcher_onto.replaceAll("<B>" + matcher_onto.group(i) + "</B>");
+        }
+    	}
+    		 
+    		 }
     	//System.out.println("RESULT: " + content);
   
 	} 
+	}
         return content;
     }
+    
 %>
 
 <%!
