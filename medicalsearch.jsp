@@ -317,7 +317,8 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("[\\[,\\]]","");
+					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 						if(ontology_con!=null && onto_check == true){
 						pmh_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -343,7 +344,8 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("[\\[,\\]]","");
+					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 						if(ontology_con!=null && onto_check == true){
 						pcom_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -367,7 +369,8 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("[\\[,\\]]","");
+					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 						if(ontology_con!=null && onto_check == true){
 						disInst_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -391,7 +394,8 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("[\\[,\\]]","");
+					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 						if(ontology_con!=null && onto_check == true){
 						omedline_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -424,7 +428,8 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("[\\[,\\]]","");
+					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 						if(ontology_con!=null && onto_check == true){
 						Overall_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -578,6 +583,10 @@ url="https://www.moh.gov.sg/content/dam/moh_web/HPP/Doctors/cpg_medical/current/
 
 	    ArrayList ontology_con=new ArrayList();
 	try{
+		if(ontocheck == true)
+		{
+		hitsPerPage = 3;
+		}
 		
 	    Directory index=FSDirectory.open(new File(indexDir));
     	    IndexReader reader = DirectoryReader.open(index);
