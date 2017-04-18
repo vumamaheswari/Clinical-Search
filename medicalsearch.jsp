@@ -319,6 +319,9 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(situation)","");
 					onto=onto.replaceAll("(regime/therapy)","");
 					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+					onto=onto.replaceAll("family","");
+					onto=onto.replaceAll("history","");
+					onto=symbolRemoval(onto);
 						if(ontology_con!=null && onto_check == true){
 						pmh_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -346,6 +349,9 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(situation)","");
 					onto=onto.replaceAll("(regime/therapy)","");
 					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+					onto=onto.replaceAll("family","");
+					onto=onto.replaceAll("history","");
+					onto=symbolRemoval(onto);
 						if(ontology_con!=null && onto_check == true){
 						pcom_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -370,7 +376,10 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
 					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("family","");
+					onto=onto.replaceAll("history","");
 					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+					onto=symbolRemoval(onto);
 						if(ontology_con!=null && onto_check == true){
 						disInst_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -395,7 +404,10 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
 					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("family","");
+					onto=onto.replaceAll("history","");
 					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+					onto=symbolRemoval(onto);
 						if(ontology_con!=null && onto_check == true){
 						omedline_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -429,7 +441,10 @@ import ="edu.stanford.nlp.ling.Sentence"
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
 					onto=onto.replaceAll("(regime/therapy)","");
+					onto=onto.replaceAll("family","");
+					onto=onto.replaceAll("history","");
 					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+					onto=symbolRemoval(onto);
 						if(ontology_con!=null && onto_check == true){
 						Overall_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
@@ -791,8 +806,7 @@ return NN.toString().trim();
  	 	{
  	 		String ontostr=ontocons.get(i).toString().trim();
  	 		ontostr=ontostr.replaceAll("[\\(,\\)]","");
- 	 		
- 	 		
+ 	 			
  	 		tokensVal_onto[i]=ontostr.toLowerCase();
  	 		
  	 		
@@ -818,16 +832,21 @@ return NN.toString().trim();
     		 if(tokensVal_onto!=null) {//#fixme
     		 
     		 for( String token_onto : tokensVal_onto) {
+    		 
+    		 	String[] newtoken= token_onto.split("\\s+");
+    			for (String jj:newtoken){
 	 
 	  
-	java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + token_onto + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
-     java.util.regex.Matcher matcher_onto = pattern.matcher(content);
+	java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + jj + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
+     java.util.regex.Matcher matcher_onto = pattern_onto.matcher(content);
+    
 	while (matcher_onto.find()) {
        
         for (int i = 0; i <= matcher_onto.groupCount(); i++) {
 		
 		   content = matcher_onto.replaceAll("<B>" + matcher_onto.group(i) + "</B>");
         }
+    	}
     	}
     		 
     		 }
