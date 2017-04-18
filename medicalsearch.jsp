@@ -15,6 +15,7 @@
 <%@page import="org.apache.lucene.analysis.Analyzer"%>
 <%@page import="org.apache.lucene.search.IndexSearcher"%>
 <%@page 
+import ="java.util.Arrays"
 import ="java.util.regex.Matcher"
 import ="java.util.regex.Pattern"
 import ="java.io.StringReader"
@@ -282,7 +283,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 	
 	ArrayList Overall_onto=new ArrayList();
 	ArrayList Overall=new ArrayList();
-	
+	String onto="";
 	String q="";
 	                            int hitsPerPage=20;
 
@@ -312,9 +313,13 @@ import ="edu.stanford.nlp.ling.Sentence"
 							    q=symbolRemoval(q);
 	    		    	
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycon"+ontology_con.toString().trim());
+					onto=ontology_con.toString().replaceAll("(finding)","");
+					onto=onto.replaceAll("(disorder)","");
+					onto=onto.replaceAll("(procedure)","");
+					onto=onto.replaceAll("(situation)","");
+					onto=onto.replaceAll("[\\[,\\]]","");
 						if(ontology_con!=null && onto_check == true){
-						pmh_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						pmh_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -334,8 +339,13 @@ import ="edu.stanford.nlp.ling.Sentence"
 	    		    	
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
+					onto=ontology_con.toString().replaceAll("(finding)","");
+					onto=onto.replaceAll("(disorder)","");
+					onto=onto.replaceAll("(procedure)","");
+					onto=onto.replaceAll("(situation)","");
+					onto=onto.replaceAll("[\\[,\\]]","");
 						if(ontology_con!=null && onto_check == true){
-						pcom_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						pcom_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -353,8 +363,13 @@ import ="edu.stanford.nlp.ling.Sentence"
 	    		    	
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
+					onto=ontology_con.toString().replaceAll("(finding)","");
+					onto=onto.replaceAll("(disorder)","");
+					onto=onto.replaceAll("(procedure)","");
+					onto=onto.replaceAll("(situation)","");
+					onto=onto.replaceAll("[\\[,\\]]","");
 						if(ontology_con!=null && onto_check == true){
-						disInst_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						disInst_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -372,8 +387,13 @@ import ="edu.stanford.nlp.ling.Sentence"
 	    		    	
 					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					System.out.println("ontologycon"+ontology_con.toString().trim());
+					onto=ontology_con.toString().replaceAll("(finding)","");
+					onto=onto.replaceAll("(disorder)","");
+					onto=onto.replaceAll("(procedure)","");
+					onto=onto.replaceAll("(situation)","");
+					onto=onto.replaceAll("[\\[,\\]]","");
 						if(ontology_con!=null && onto_check == true){
-						omedline_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						omedline_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -400,8 +420,13 @@ import ="edu.stanford.nlp.ling.Sentence"
 					 q=symbolRemoval(q);
 					 ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
 					 System.out.println("ontologycon"+ontology_con.toString().trim());
+					 onto=ontology_con.toString().replaceAll("(finding)","");
+					onto=onto.replaceAll("(disorder)","");
+					onto=onto.replaceAll("(procedure)","");
+					onto=onto.replaceAll("(situation)","");
+					onto=onto.replaceAll("[\\[,\\]]","");
 						if(ontology_con!=null && onto_check == true){
-						Overall_onto=luceneSearch(ontology_con.toString().trim(),indexDir,field,hitsPerPage, false);
+						Overall_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
 						}
 						else
 						{
@@ -432,7 +457,7 @@ import ="edu.stanford.nlp.ling.Sentence"
             Object[] resultobj= (Object[]) final_result.get(h);
            System.out.println("The sorted results"+resultobj[0]+resultobj[1]+"PageNumber"+resultobj[2]+"topic"+resultobj[3]+"level"+resultobj[4]+"year"+resultobj[5]+"classification level"+resultobj[6]);
 
-String newoutput=Highlightwords(text,ontology_con,(String)resultobj[1],"black");
+String newoutput=Highlightwords(text.toLowerCase(),ontology_con,(String)resultobj[1],"black");
 String url= (String)fileList.get(resultobj[7]);
 			if(url!=null){//FixMe
 			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
@@ -553,7 +578,7 @@ url="https://www.moh.gov.sg/content/dam/moh_web/HPP/Doctors/cpg_medical/current/
 
 	    ArrayList ontology_con=new ArrayList();
 	try{
-
+		
 	    Directory index=FSDirectory.open(new File(indexDir));
     	    IndexReader reader = DirectoryReader.open(index);
     	    IndexSearcher searcher = new IndexSearcher(reader);
@@ -661,7 +686,7 @@ TreeSet q_ts1=new TreeSet();
 	List<CoreLabel> rawWords = Sentence.toCoreLabelList(query);
 	Tree parse = lp.apply(rawWords);
 	List taggedWords = parse.taggedYield();
-	System.out.println(taggedWords);
+	//System.out.println(taggedWords);
 	return taggedWords.toString().trim();
 }%>
 
@@ -694,11 +719,11 @@ TreeSet q_ts=new TreeSet();
             {
                 String new_token=newString[k].toString().trim();
                 String newString1 = new_token.replaceAll("[^a-z A-Z]","");
-                System.out.println("After symbol removal"+newString1);
+                //System.out.println("After symbol removal"+newString1);
       		String p1=stanfordparser(newString1);
 		 p1 = p1.replaceAll("[^a-z A-Z]","");
                 //String p1=parsenew(newString1);
-                System.out.println("P1 is"+p1);
+               // System.out.println("P1 is"+p1);
                 StringTokenizer ts=new StringTokenizer(p1);
                 while(ts.hasMoreTokens())
                 {
@@ -749,18 +774,22 @@ return NN.toString().trim();
 	 // analyzing the string 
 	 String[] tokensVal = highlight.split(delimiters);
 	 String[] tokensVal_onto=new String[ontocons.size()];
+	 TreeSet sb=new TreeSet();
  	   // prints the number of tokens
  	 if(ontocons.size()>1)
  	 {
  	 	for(int i=0;i<ontocons.size();i++)
  	 	{
  	 		String ontostr=ontocons.get(i).toString().trim();
+ 	 		ontostr=ontostr.replaceAll("[\\(,\\)]","");
  	 		
- 	 		tokensVal_onto[i]=ontostr;
+ 	 		
+ 	 		tokensVal_onto[i]=ontostr.toLowerCase();
+ 	 		
  	 		
  	 	}
- 	
- 	 highlight=tokensVal_onto.toString();
+ 
+
 	 }
 	
   
@@ -770,14 +799,15 @@ return NN.toString().trim();
 	java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b" + token + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
      java.util.regex.Matcher matcher = pattern.matcher(content);
 	while (matcher.find()) {
-        System.out.println("Match found!!!");
+        //System.out.println("Match found!!!");
         for (int i = 0; i <= matcher.groupCount(); i++) {
 		   System.out.println(matcher.group(i));
 		   content = matcher.replaceAll("<B>" + matcher.group(i) + "</B>");
         }
     	}
     	
-    		 if(tokensVal_onto!=null) {
+    		 if(tokensVal_onto!=null) {//#fixme
+    		 
     		 for( String token_onto : tokensVal_onto) {
 	 
 	  
@@ -794,7 +824,7 @@ return NN.toString().trim();
     		 }
     	//System.out.println("RESULT: " + content);
   
-	} 
+	}
 	}
         return content;
     }
