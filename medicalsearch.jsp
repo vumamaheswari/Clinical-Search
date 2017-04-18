@@ -479,13 +479,15 @@ import ="edu.stanford.nlp.ling.Sentence"
 
 String newoutput=Highlightwords(text.toLowerCase(),ontology_con,(String)resultobj[1],"black");
 String url= (String)fileList.get(resultobj[7]);
-			if(url!=null){//FixMe
+			if((Double)resultobj[0]!=0.0){
+			if(url!=null ){//FixMe
 			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
 			}
 			else
 			{
 url="https://www.moh.gov.sg/content/dam/moh_web/HPP/Doctors/cpg_medical/current/2014/diabetes_mellitus/cpg_Diabetes%20Mellitus%20Summary%20Card%20-%20Jul%202014.pdf";
 			resultset.add("<p>"+"<a href = "+url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
+			}
 			}
         }//for
 	  
@@ -844,7 +846,7 @@ return NN.toString().trim();
        
         for (int i = 0; i <= matcher_onto.groupCount(); i++) {
 		
-		   content = matcher_onto.replaceAll("<B>" + matcher_onto.group(i) + "</B>");
+		   content = matcher_onto.replaceAll("<B>" + matcher_onto.group(i)+ "</B>");
         }
     	}
     	}
