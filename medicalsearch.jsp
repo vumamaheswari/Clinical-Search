@@ -796,7 +796,9 @@ return NN.toString().trim();
 
 
 	 String delimiters = "\\s+|,\\s*|\\.\\s*";
-
+	 String[] stopwords ={"with","of","a","an","the","in","on","from","to"};
+	 List <String>list = new ArrayList<String>(Arrays.asList(stopwords)); 
+	 String newcontent="";
 	 // analyzing the string 
 	 String[] tokensVal = highlight.split(delimiters);
 	 String[] tokensVal_onto=new String[ontocons.size()];
@@ -812,52 +814,47 @@ return NN.toString().trim();
  	 		tokensVal_onto[i]=ontostr.toLowerCase();
  	 		
  	 		
- 	 	}
+ 	 	}//for
  
 
-	 }
+	 }//if
 	
-  
+  	
 	 for(String token : tokensVal) {
 	 	System.out.print(token);
-	  
+	  if(!list.contains(token)){
 	java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b" + token + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
      java.util.regex.Matcher matcher = pattern.matcher(content);
 	while (matcher.find()) {
         //System.out.println("Match found!!!");
         for (int i = 0; i <= matcher.groupCount(); i++) {
 		   System.out.println(matcher.group(i));
-		   content = matcher.replaceAll("<B>" + matcher.group(i) + "</B>");
-        }
-    	}
+		   newcontent = matcher.replaceAll("<B>" +"<font color=green>"+matcher.group(i)+ "</font>"+ "</B>");
+        }//for
+    	}//while
+    	}//if
+    	}//for
     	
-    		 if(tokensVal_onto!=null) {//#fixme
-    		 
-    		 for( String token_onto : tokensVal_onto) {
-    		 
+	if(tokensVal_onto!=null) {
+    	for( String token_onto : tokensVal_onto) {
+    			
     		 	String[] newtoken= token_onto.split("\\s+");
     			for (String jj:newtoken){
-	 
-	  
-	java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + jj + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
-     java.util.regex.Matcher matcher_onto = pattern_onto.matcher(content);
-    
-	while (matcher_onto.find()) {
-       
-        for (int i = 0; i <= matcher_onto.groupCount(); i++) {
-		
-		   content = matcher_onto.replaceAll("<B>" + matcher_onto.group(i)+ "</B>");
-        }
-    	}
-    	}
-    		 
-    		 }
-    	//System.out.println("RESULT: " + content);
-  
-	}
-	}
-        return content;
-    }
+    				if(!list.contains(jj)){
+				java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + jj + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
+     			java.util.regex.Matcher matcher_onto = pattern_onto.matcher(newcontent);
+    				while (matcher_onto.find()) {
+    			     for (int i = 0; i <= matcher_onto.groupCount(); i++) {
+				   newcontent = matcher_onto.replaceAll("<B>" +"<font color=green>"+matcher_onto.group(i)+ "</font>"+"</B>");
+        			}//for
+			    	}//while
+			    	}
+			    	}//for
+    		     	}//for
+    	  
+	}//if
+        return newcontent;
+}//method ends
     
 %>
 
