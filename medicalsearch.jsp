@@ -458,6 +458,12 @@ import ="edu.stanford.nlp.ling.Sentence"
 			    }//if overall 
 			    else
 			    {
+			    		
+			    		  
+			    		 q=q.replaceAll("OrderedMedications","");
+    		q=q.replaceAll("PastMedicalHistory","");
+		q=q.replaceAll("PresentingComplaints","");
+		q=q.replaceAll("DischargeInsSearch","");
 					 q= delSpaces(text.toString().trim());
 					 q=symbolRemoval(q);
 					 ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
@@ -750,17 +756,17 @@ TreeSet q_ts=new TreeSet();
                 {
                     String s=ts.nextToken();
 
-		//System.out.println("The tokens are "+s);
+		System.out.println("The tokens are "+s);
                     if(s.endsWith("NNP")|s.endsWith("NNS")|s.endsWith("NN")|s.endsWith("JJ")){
                         s=s.replace("NNP","");
 			s=s.replace("NNS","");
 			s=s.replace("NN","");
 			s=s.replace("JJ","");
                         s = s.replaceAll("\\b[\\w']{1,3}\\b", "");
-                        s = s.replaceAll("\\s{3,}", " ");
+                        s = s.replaceAll("\\s{3,}", "");
                        
                         if(!s.isEmpty()&&q_ts.add(s)){
-                            NN.append(s.trim());
+                            NN.append(" "+s.trim());
                         }//if
 
                  }//if
