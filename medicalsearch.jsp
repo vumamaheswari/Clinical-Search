@@ -33,7 +33,7 @@ import ="java.util.Set"
 import ="java.util.TreeSet"
 import ="java.io.IOException"
 import ="java.io.FileInputStream"
-
+import ="java.math.BigDecimal"
 import ="java.io.ObjectInputStream"
 import ="java.util.Hashtable"
 import ="org.apache.lucene.analysis.TokenStream"
@@ -84,7 +84,7 @@ import ="edu.stanford.nlp.ling.Sentence"
  <body bgcolor="#ffffe">
 <div id=text></div>
 <BODY>
-  
+  <%! public static TreeSet tssdrem=new TreeSet();%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 
 <div id=text></div>
@@ -176,6 +176,7 @@ import ="edu.stanford.nlp.ling.Sentence"
          var element = document.getElementById(positionId);
          
          var pagerHtml = '<span onclick="' + pagerName + '.prev();" class="pg-normal"> « Prev </span> | ';
+
             for (var page = 1; page <= this.pages; page++) 
 		       pagerHtml += '<span id="pg' + page + '" class="pg-normal" onclick="' + pagerName + '.showPage(' + page + ');">' + page + '</span> | ';
 		       pagerHtml += '<span onclick="'+pagerName+'.next();" class="pg-normal"> Next »</span>';            
@@ -194,6 +195,7 @@ import ="edu.stanford.nlp.ling.Sentence"
 	String text2="";
 	String text3="";
 	String text4="";
+	String text_overall="";
 		ArrayList<String> resultset=new ArrayList<String>(); //final result will be stored here
 		
 	 text1=request.getParameter("PastMedicalHistory");
@@ -209,8 +211,10 @@ import ="edu.stanford.nlp.ling.Sentence"
 	
 	if(!text1.isEmpty() && !text2.isEmpty() && !text3.isEmpty() && !text4.isEmpty())
 	{
-	text=text1+"PastMedicalHistory"+":"+text2+"PresentingComplaints"+":"+text3+"DischargeInsSearch"+":"+text4+"OrderedMedications";
+	text=text1.trim()+"PastMedicalHistory"+":"+text2.trim()+"PresentingComplaints"+":"+text3.trim()+"DischargeInsSearch"+":"+text4.trim()+"OrderedMedications";
 	tag="overall";
+	text_overall=text1.trim()+" "+text2.trim()+" "+text3.trim()+" "+text4.trim();
+	//////////System.out.println("I am inside overall"+text);
 	}else{
 	
 	if(!text1.isEmpty())
@@ -257,63 +261,53 @@ import ="edu.stanford.nlp.ling.Sentence"
 		tag="OrderedMedications";
 	}
 	text=""+text1+""+text2+""+text3+""+text4+"";
+	//////////System.out.println("I am inside specific"+text);
 	}	
 	//out.println("Query is"+text);
 	if(!text.isEmpty())
 	{
 
-	 ArrayList result_new=new ArrayList();
-         ArrayList<Object[]> result_sort=new ArrayList<Object[]>();
-	 ArrayList ranked_doc =new ArrayList();
-	 ArrayList<Object[]> final_result=new ArrayList<Object[]>();
-	ArrayList ontology_con=new ArrayList();
+		 ArrayList result_new=new ArrayList();
+		 ArrayList<Object[]> result_sort=new ArrayList<Object[]>();
+		 ArrayList ranked_doc =new ArrayList();
+		 ArrayList<Object[]> final_result=new ArrayList<Object[]>();
+		 ArrayList ontology_con=new ArrayList();
 
 
-	//seperate list to seperate the medsearch results(Ranking purpose)
-	ArrayList pmh=new ArrayList();
-//	ArrayList pmh_field2=new ArrayList();
+		//seperate list to seperate the medsearch results(Ranking purpose)
+		ArrayList pmh=new ArrayList();
+		ArrayList pcom=new ArrayList();
+		ArrayList disInst=new ArrayList();
+		ArrayList omedline=new ArrayList();
 	
-	
-	ArrayList pcom=new ArrayList();
-//	ArrayList pcom_field2=new ArrayList();
 
+		//Store the ontology based results seperately
+		ArrayList pmh_onto=new ArrayList();
+		ArrayList pcom_onto=new ArrayList();	
+		ArrayList disInst_onto=new ArrayList();
 	
-		
-	ArrayList disInst=new ArrayList();
-	ArrayList omedline=new ArrayList();
-	
-//	-------------------------------------------------
-	//Store the ontology based results seperately
-	ArrayList pmh_onto=new ArrayList();
-	ArrayList pcom_onto=new ArrayList();	
-	ArrayList disInst_onto=new ArrayList();
-	
-	ArrayList omedline_onto=new ArrayList();
+		ArrayList omedline_onto=new ArrayList();
 
-	//Overall results
+		//Overall results
 	
-	ArrayList Overall_onto=new ArrayList();
+		ArrayList Overall_onto=new ArrayList();
 	
 	
-	ArrayList Overall=new ArrayList();
-//	ArrayList Overall_field2=new ArrayList();
+		ArrayList Overall=new ArrayList();
+		String onto="";
+		String q="";
+		int hitsPerPage=20;
+		                            
 
-	
-	String onto="";
-	String q="";
-	                            int hitsPerPage=20;
 
-	//text=text.replaceAll("null","");
-	//out.println("I am not null"+text);
 	 try {
-                	    String indexDir=new File("CPG-Index/CPG-Index").getAbsolutePath(); 
-			    String ontologyindex=new File("SNOMED-Index/SNOMED-Index").getAbsolutePath();
+                
+                String indexDir=new File("CPG-Index/CPG-Index").getAbsolutePath(); 
+			 String ontologyindex=new File("SNOMED-Index/SNOMED-Index").getAbsolutePath();
 			    
-                   String field="fullstring";             
-                  // String field2="SessionTitle";
-                   
-			    if(tag.equals("overall"))
-			    {
+                String field="fullstring";             
+                if(tag.equals("overall"))
+			 {
 				
 				StringTokenizer s_medsep=new StringTokenizer(text,":");
 				while(s_medsep.hasMoreTokens())
@@ -327,29 +321,28 @@ import ="edu.stanford.nlp.ling.Sentence"
 					{
 						str1.replaceAll("PastMedicalHistory","");
 						text=str1.toString().trim();
-						        q= delSpaces(text.toString().trim());
-							    q=symbolRemoval(q);
-	    		    	
-					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycons are"+ontology_con.size());
-					onto=ontology_con.toString().replaceAll("(finding)","");
-					onto=onto.replaceAll("(disorder)","");
-					onto=onto.replaceAll("(procedure)","");
-					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("(regime/therapy)","");
-					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
-					onto=onto.replaceAll("family","");
-					onto=onto.replaceAll("history","");
+						q= delSpaces(text.toString().trim());
+						q=symbolRemoval(q);
+						ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
+						
+						onto=ontology_con.toString().replaceAll("(finding)","");
+						onto=onto.replaceAll("(disorder)","");
+						onto=onto.replaceAll("(procedure)","");
+						onto=onto.replaceAll("(situation)","");
+						onto=onto.replaceAll("(regime/therapy)","");
+						onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+						onto=onto.replaceAll("family","");
+						onto=onto.replaceAll("history","");
 				
 						if(ontology_con!=null && onto_check == true &&!ontology_con.isEmpty()){
 						pmh_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
-						System.out.println("The size of PMHonto is"+pmh_onto.size());
+						//////////System.out.println("The size of PMHonto is"+pmh_onto.size()+pmh_onto.toString().trim());
 						}
 						else
 						{
 						pmh=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);		
-						System.out.println("The size of PMH is"+pmh.size());			
-						//pmh_field2=luceneSearch(q,indexDir,"SessionTitle",hitsPerPage, false);
+						//////////System.out.println("The size of PMH is"+pmh.size());			
+						
 												
 						}
 							
@@ -359,121 +352,118 @@ import ="edu.stanford.nlp.ling.Sentence"
 					}
 					if(str2.contains("PresentingComplaints"))
 					{
-						str2.replaceAll("PresentingComplaints","");
-						
+						str2.replaceAll("PresentingComplaints","");						
 						text=str2.toString().trim();
-						         q= delSpaces(text.toString().trim());
-							    q=symbolRemoval(q);
+						q= delSpaces(text.toString().trim());
+						q=symbolRemoval(q);
 	    		    	
-					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycon"+ontology_con.toString().trim());
-					onto=ontology_con.toString().replaceAll("(finding)","");
-					onto=onto.replaceAll("(disorder)","");
-					onto=onto.replaceAll("(procedure)","");
-					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("(regime/therapy)","");
-					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
-					onto=onto.replaceAll("family","");
-					onto=onto.replaceAll("history","");
+						ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
+						
+						onto=ontology_con.toString().replaceAll("(finding)","");
+						onto=onto.replaceAll("(disorder)","");
+						onto=onto.replaceAll("(procedure)","");
+						onto=onto.replaceAll("(situation)","");
+						onto=onto.replaceAll("(regime/therapy)","");
+						onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+						onto=onto.replaceAll("family","");
+						onto=onto.replaceAll("history","");
 					
 				
 						if(ontology_con!=null && onto_check == true&&!ontology_con.isEmpty()){
 						pcom_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
-						
+						//////////System.out.println("The size of pcom_onto is"+pcom_onto.size()+pcom_onto.toString().trim());
 						}
 						else
 						{
 						pcom=luceneSearch(q,indexDir,field,hitsPerPage, false);
-						//pcom_field2=luceneSearch(q,indexDir,"SessionTitle",hitsPerPage, false);
+						//////////System.out.println("The size of pcom is"+pcom.size());	
 						}
 						
 					}
 					if(str3.contains("DischargeInsSearch"))
 					{
-					str3.replaceAll("DischargeInsSearch","");
-					
+						str3.replaceAll("DischargeInsSearch","");
 						text=str3.toString().trim();
-						         q= delSpaces(text.toString().trim());
-							    q=symbolRemoval(q);
+					     q= delSpaces(text.toString().trim());
+					     q=symbolRemoval(q);
 	    		    	
-					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycon"+ontology_con.toString().trim());
-					onto=ontology_con.toString().replaceAll("(finding)","");
-					onto=onto.replaceAll("(disorder)","");
-					onto=onto.replaceAll("(procedure)","");
-					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("(regime/therapy)","");
-					onto=onto.replaceAll("family","");
-					onto=onto.replaceAll("history","");
-					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+						ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
+						
+						onto=ontology_con.toString().replaceAll("(finding)","");
+						onto=onto.replaceAll("(disorder)","");
+						onto=onto.replaceAll("(procedure)","");
+						onto=onto.replaceAll("(situation)","");
+						onto=onto.replaceAll("(regime/therapy)","");
+						onto=onto.replaceAll("family","");
+						onto=onto.replaceAll("history","");
+						onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 				
 						if(ontology_con!=null && onto_check == true&&!ontology_con.isEmpty()){
 						disInst_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
+						//////////System.out.println("The size of disInst_onto is"+disInst_onto.size()+disInst_onto.toString().trim());
 						}
 						else
 						{
 						disInst=luceneSearch(q,indexDir,field,hitsPerPage, false);
+						//////////System.out.println("The size of disInst is"+disInst.size());	
 						}
 						
 					}
 					if(str4.contains("OrderedMedications"))
 					{
-					str4.replaceAll("OrderedMedications","");
-					
+						str4.replaceAll("OrderedMedications","");
 						text=str4.toString().trim();
-						         q= delSpaces(text.toString().trim());
-							    q=symbolRemoval(q);
-	    		    	
-					ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontologycon"+ontology_con.toString().trim());
-					onto=ontology_con.toString().replaceAll("(finding)","");
-					onto=onto.replaceAll("(disorder)","");
-					onto=onto.replaceAll("(procedure)","");
-					onto=onto.replaceAll("(situation)","");
-					onto=onto.replaceAll("(regime/therapy)","");
-					onto=onto.replaceAll("family","");
-					onto=onto.replaceAll("history","");
-					onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
+						q= delSpaces(text.toString().trim());
+						q=symbolRemoval(q);
+		    		    	
+						ontology_con=luceneSearch(q,ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
+					
+						onto=ontology_con.toString().replaceAll("(finding)","");
+						onto=onto.replaceAll("(disorder)","");
+						onto=onto.replaceAll("(procedure)","");
+						onto=onto.replaceAll("(situation)","");
+						onto=onto.replaceAll("(regime/therapy)","");
+						onto=onto.replaceAll("family","");
+						onto=onto.replaceAll("history","");
+						onto=onto.replaceAll("[\\[,\\],\\(,\\)]","");
 			
 						if(ontology_con!=null && onto_check == true&&!ontology_con.isEmpty()){
 						omedline_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
+						//////////System.out.println("The size of omedline_onto is"+omedline_onto.size()+omedline_onto.toString().trim());
 						}
 						else
 						{
 						omedline=luceneSearch(q,indexDir,field,hitsPerPage, false);
+						//////////System.out.println("The size of omedline is"+omedline.size()+omedline.toString().trim());
 						}
 						
 					}
 					
 				}
-				  result_new.addAll(pmh);
-				  //result_new.addAll(pmh_field2);
-				  
-				  result_new.addAll(pcom);
-				  //  result_new.addAll(pcom_field2);
+				result_new.addAll(pmh);	
+				result_new.addAll(pmh_onto);			  
+				result_new.addAll(pcom);	
+				result_new.addAll(pcom_onto);		
+				result_new.addAll(omedline);
+				result_new.addAll(omedline_onto);
+				result_new.addAll(disInst);
+				result_new.addAll(disInst_onto);
 				
-				 result_new.addAll(disInst);
-				 result_new.addAll(omedline);
-				 
-				   result_new.addAll(pmh_onto);
-				  result_new.addAll(pcom_onto);
-				 result_new.addAll(disInst_onto);
-				 result_new.addAll(omedline_onto);
-				
-			    }//if overall 
-			    else
-			    {
+			   }//if overall 
+			   else
+			   {
 			    		
 			    		  
-			    		 q=q.replaceAll("OrderedMedications","");
-    		q=q.replaceAll("PastMedicalHistory","");
-		q=q.replaceAll("PresentingComplaints","");
-		q=q.replaceAll("DischargeInsSearch","");
-					 q= delSpaces(text.toString().trim());
+			    		 
+				    	 q=q.replaceAll("PastMedicalHistory"," ");
+					 q=q.replaceAll("PresentingComplaints"," ");
+					 q=q.replaceAll("DischargeInsSearch"," ");
+					 q=q.replaceAll("OrderedMedications"," ");
+					 q=delSpaces(text.toString().trim());
 					 q=symbolRemoval(q);
-					 ontology_con=luceneSearch(q.toLowerCase().trim(),ontologyindex,"SNOMED_FSN",hitsPerPage, onto_check);
-					System.out.println("ontocons"+ontology_con.toString().trim());
-					 onto=ontology_con.toString().replaceAll("(finding)","");
+					 ontology_con=luceneSearch(q.toLowerCase().trim(),ontologyindex,"SNOMED_FSN",hitsPerPage, true);
+					////////////System.out.println("ontocons"+ontology_con.toString().trim());
+					onto=ontology_con.toString().replaceAll("(finding)","");
 					onto=onto.replaceAll("(disorder)","");
 					onto=onto.replaceAll("(procedure)","");
 					onto=onto.replaceAll("(situation)","");
@@ -484,12 +474,12 @@ import ="edu.stanford.nlp.ling.Sentence"
 					
 						if(ontology_con!=null && onto_check == true&&!ontology_con.isEmpty()){
 						Overall_onto=luceneSearch(onto.toString().trim().toLowerCase(),indexDir,field,hitsPerPage, false);
-						//System.out.println("size of ontoresults"+Overall_onto.toString().trim());
+						////////////System.out.println("size of ontoresults"+Overall_onto.toString().trim());
 						}
 						else
 						{
 						Overall=luceneSearch(q.toLowerCase().trim(),indexDir,field,hitsPerPage, false);
-							//System.out.println("size of actual"+Overall.size());
+						////////////System.out.println("size of actual"+Overall.size());
 						//Overall_field2=luceneSearch(q.toLowerCase(),indexDir,field2,hitsPerPage, false);
 						
 						}
@@ -517,31 +507,47 @@ import ="edu.stanford.nlp.ling.Sentence"
 	Hashtable fileList=(Hashtable)ois.readObject();
 	ois.close();//closing object stream 
 	fis.close();//closing file stream
-String newoutput="";
-String url="";
-		out.println("Total Hits:"+final_result.size());
+	String newoutput="";
+	String url="";
+	long startTime=0;
+	 long endTime=0;
+	startTime=System.nanoTime();
+	out.println("Total Hits:"+final_result.size());
+	
 	   for (int h = 0; h < final_result.size(); h++) {
             Object[] resultobj= (Object[]) final_result.get(h);
 		          
-           System.out.println("The sorted results****"+resultobj[0]);
-
- newoutput=Highlightwords(text.toLowerCase(),ontology_con,(String)resultobj[1],"black");
+           //////////////System.out.println("The sorted results****"+resultobj[0]);
+if(tag.equals("overall")){
+ newoutput=Highlightwords(text_overall.toLowerCase(),ontology_con,(String)resultobj[1],"black");
+ }else
+ {
+  newoutput=Highlightwords(text.toLowerCase(),ontology_con,(String)resultobj[1],"black");
+ }
 
  url= (String)fileList.get(resultobj[7]);
 
 		
 			if(newoutput!=""){//FixMe
-			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");
+			if(tssdrem.add(newoutput.trim())){
+			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"FileName:"+resultobj[7]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+newoutput+"</font>"+" "+" score: " + resultobj[0]+"</p>"+"</br>");}
 			}
 			else
 			{
-			resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+(String)resultobj[1]+"</font>"+"</p>"+"</br>");
+			if(tssdrem.add(newoutput.trim())){resultset.add("<p>"+"<a href = " +url+"#page="+resultobj[2]+">"+"FileName:"+url+"\t\t"+"PageNumber="+resultobj[2]+"\t\t"+"</a>"+"CATAGORY:"+resultobj[4] +" "+"TOPIC:"+ resultobj[3]+" "+"FileName:"+resultobj[7]+" "+"YEAR:"+resultobj[5]+" "+"CLASS_LEVEL:"+resultobj[6]+" "+"<font color="+"green"+">"+"GUIDLINES:"+(String)resultobj[1]+"</font>"+"</p>"+"</br>");}
 			
 			}
 		
         }//for
 	  
-               
+      tssdrem.clear();
+     endTime=System.nanoTime(); 
+     double resulttime = endTime - startTime;		
+	resulttime= resulttime / (Math.pow(10, 9)); 
+
+	
+	 out.println("\t\t\t"+"Time taken:"+BigDecimal.valueOf(resulttime));
+              
      } catch (Exception ee) { out.println("<b><p>Error: " + ee + "</p></b>");ee.printStackTrace();}
 	
 	
@@ -554,6 +560,7 @@ String url="";
     <table border="1" id="results">
         <tr bgcolor="orange">
             <td><strong>Guidelines</strong></td>
+           
             
         </tr>
         <%
@@ -578,7 +585,9 @@ String url="";
 		       pager.showPageNav('pager', 'pageNavPosition'); 
 		       pager.showPage(1);           
 	</script>
+	 
 </body>
+<%@ include file="footer.html" %>
 
    
 
@@ -590,7 +599,7 @@ String url="";
 		//Add subtitle and topic as fields in the next improvement
 	 
 		
-		System.out.println("getting query here"+q);
+		//////////////System.out.println("getting query here"+q);
 	
     		q=q.replaceAll("OrderedMedications","");
     		q=q.replaceAll("PastMedicalHistory","");
@@ -611,7 +620,7 @@ String url="";
 	    QueryParser parser1 = new QueryParser(Version.LUCENE_4_10_3, field, analyzer);
    
 	    Query query = parser1.parse(parser1.escape(q));
-	    System.out.println("Query String is"+query);
+	    //////////////System.out.println("Query String is"+query);
 	
 	    searcher.search(query, null, 100);
             
@@ -621,7 +630,7 @@ String url="";
          
     
     	   int numTotalHits = results.totalHits;
-		System.out.println("Total number of matching documents"+numTotalHits);
+		//////////////System.out.println("Total number of matching documents"+numTotalHits);
 	   int start = 0;
 	   // int end = Math.min(numTotalHits, hitsPerPage);
 	 // int end = Math.min(hits.length, start + hitsPerPage);
@@ -629,34 +638,38 @@ String url="";
      for (int i = start; i < end; i++) {
 		
 	Document doc = searcher.doc(hits[i].doc); 
-	//System.out.println(doc.get("SNOMED_FSN").toString().trim());
+	////////////////System.out.println(doc.get("SNOMED_FSN").toString().trim());
      
 
-
+	Object hit_result[]= new Object[7];
 
 	if(ontocheck==false)
 	{
-		int pagenumber = 2 + Integer.parseInt(doc.get("PageNumber")); 
-		Object hit_result[] = new Object[7];
+		int pagenumber = Integer.parseInt(doc.get("PageNumber")); 
+	
 		hit_result[0] =pagenumber;
 		hit_result[1] =doc.get("Topic").toString();
 		hit_result[2] =doc.get("Level").toString();
 		hit_result[3] =doc.get("fullstring").toString();		
 		hit_result[4] =doc.get("Year").toString();
 		hit_result[5] =doc.get("classificationLevel").toString();
-		hit_result[6] =doc.get("FileName").toString();    
-		    
+		hit_result[6] =doc.get("FileName").toString();   
+		
+		 
+			if(tssdrem.add(hit_result[3].toString().trim())){
             	ontology_con.add(hit_result);
-            	System.out.println("The results inside lucenesearch"+hit_result[3].toString().trim());
+            	}
+            	//////////////System.out.println("The results inside lucenesearch"+hit_result[3].toString().trim());
 	}
 	else
 	{
-		//System.out.println("I am in Else");		
+		////////////////System.out.println("I am in Else");		
 		//Object hit_result[] = new Object[1];
 		String fsn=doc.get("SNOMED_FSN").toString().trim();
+		////////////System.out.println(fsn);
 		//hit_result[0] =fsn;
 		
-		fsn=fsn.replaceAll("(finding)","");
+					fsn=fsn.replaceAll("(finding)","");
 					fsn=fsn.replaceAll("(disorder)","");
 					fsn=fsn.replaceAll("(procedure)","");
 					fsn=fsn.replaceAll("(situation)","");
@@ -664,16 +677,18 @@ String url="";
 					fsn=fsn.replaceAll("[\\[,\\],\\(,\\)]","");
 					fsn=fsn.replaceAll("family","");
 					fsn=fsn.replaceAll("history","");
-					System.out.println("fsn is"+fsn+"\t"+"q is"+q+"\t"+fsn.equalsIgnoreCase(q));
+					////////////System.out.println("fsn is"+fsn+"\t"+"q is"+q+"\t"+fsn.equalsIgnoreCase(q));
 				
-		if(fsn.toString().toLowerCase().trim().equalsIgnoreCase(q.trim()))
-		{
-		
-		}
-		else
-		{
-			ontology_con.add(fsn);
-		}
+		//if(fsn.toString().toLowerCase().trim().equalsIgnoreCase(q.trim()))
+		//{
+			
+		//}
+		//else
+		//{
+			//if(tssdrem.add(hit_result[3].toString().trim())){
+			ontology_con.add(fsn.toString().toLowerCase());
+			//}
+		//}
 		
 		
 		
@@ -704,7 +719,7 @@ TreeSet q_ts1=new TreeSet();
            Object[] common_w_score=common_words(fullString_match,NN);
            double score=Double.parseDouble(common_w_score[0].toString().trim());
 	   String com_words=common_w_score[1].toString().trim();
-           System.out.println("cc"+score+fullString_match+"*"+NN);
+           //////////////System.out.println("cc"+score+fullString_match+"*"+NN);
 
            Object obj1[] = new Object[8];
            obj1[0]=score;//rankscore
@@ -717,7 +732,7 @@ TreeSet q_ts1=new TreeSet();
 	   obj1[7]=resultinfo[6].toString().trim();//Filename
 			
 		
-           if(q_ts1.add(obj1[0]+""+obj1[1])){
+           if(q_ts1.add(obj1[1])){
            result_sort.add(obj1);
            }//if
 
@@ -736,7 +751,7 @@ TreeSet q_ts1=new TreeSet();
 	List<CoreLabel> rawWords = Sentence.toCoreLabelList(query);
 	Tree parse = lp.apply(rawWords);
 	List taggedWords = parse.taggedYield();
-	//System.out.println(taggedWords);
+	////////////////System.out.println(taggedWords);
 	return taggedWords.toString().trim();
 }%>
 
@@ -771,24 +786,24 @@ TreeSet q_ts=new TreeSet();
             	try{
                 String new_token=newString[k].toString().trim();
                 String newString1 = new_token.replaceAll("[^a-z A-Z]","");
-                System.out.println("After symbol removal"+newString1);
+                //////////////System.out.println("After symbol removal"+newString1);
       		String p1=stanfordparser(newString1);
 		 p1 = p1.replaceAll("[^a-z A-Z]","");
                 //String p1=parsenew(newString1);
-              System.out.println("P1 is"+p1);
+              //////////////System.out.println("P1 is"+p1);
                 StringTokenizer ts=new StringTokenizer(p1);
                 while(ts.hasMoreTokens())
                 {
                     String s=ts.nextToken();
 
-		System.out.println("The tokens are"+s+"\n");
-                    if(s.endsWith("NNP")|s.endsWith("NNS")|s.endsWith("NN")|s.endsWith("JJ")|s.endsWith("RB")|s.endsWith("VB")){
-                        s=s.replace("NNP"," ");
+			////////////System.out.println("The tokens are"+s+"\n");
+                    if(s.endsWith("NNP")|s.endsWith("NNS")|s.endsWith("NN")|s.endsWith("JJ")|s.endsWith("RB")){
+               s=s.replace("NNP"," ");
 			s=s.replace("NNS"," ");
 			s=s.replace("NN"," ");
 			s=s.replace("JJ"," ");
 			s=s.replace("RB"," ");
-			s=s.replace("VB"," ");
+			
                         s = s.replaceAll("\\b[\\w']{1,3}\\b", "");
                         s = s.replaceAll("\\s{3,}", "");
                        
@@ -801,7 +816,7 @@ TreeSet q_ts=new TreeSet();
                 }catch(Exception e){e.printStackTrace();}
             }//for
    
-    System.out.println("Important Clinical Terms from PMR are"+NN.toString());
+    ////////////System.out.println("Important Clinical Terms from PMR are"+NN.toString());
 
     
 return NN.toString().trim();
@@ -815,7 +830,7 @@ return NN.toString().trim();
     Set<String> xset = new HashSet<String>(Arrays.asList(xwords));
     Set<String> yset = new HashSet<String>(Arrays.asList(ywords));
     xset.retainAll(yset);
-    System.out.println("The common words are: " + xset);
+    //////////////System.out.println("The common words are: " + xset);
     String score=String.valueOf(xset.size());
     String words=xset.toString().trim();	
     comwords[0]=score;
@@ -827,26 +842,26 @@ return NN.toString().trim();
 
 
 	
-	
+	////System.out.println("Highlight here is"+highlight);
 	highlight=highlight.replaceAll("orderedmedications"," ");
-    		highlight=highlight.trim().replaceAll("pastmedicalHistory"," ");
-		highlight=highlight.trim().replaceAll("presentingcomplaints"," ");
-		highlight=highlight.trim().replaceAll("dischargeInsSearch"," ");
-
-
-	 String delimiters = "\\s+|,\\s*|\\.\\s*";
-	 String[] stopwords ={"with","of","a","an","the","in","on","from","to","as","and","upper","by","for","at","or","be","without","while","what","when","who","where"};
-	 List <String>list = new ArrayList<String>(Arrays.asList(stopwords)); 
-	 String newcontent="";
+    	highlight=highlight.trim().replaceAll("pastmedicalHistory"," ");
+	highlight=highlight.trim().replaceAll("presentingcomplaints"," ");
+	highlight=highlight.trim().replaceAll("dischargeInsSearch"," ");
+	
+	String delimiters = "\\s+|,\\s*|\\.\\s*";
+	String[] stopwords ={"with","of","a","an","the","in","on","from","to","as","and","upper","by","for","at","or","be","without","while","what","when","who","where"};
+	List <String>list = new ArrayList<String>(Arrays.asList(stopwords)); 
+	String newcontent="";
+	
 	 // analyzing the string 
-	 String[] tokensVal = highlight.split(delimiters);
-	 String[] tokensVal_onto=new String[ontocons.size()];
-	 TreeSet sb=new TreeSet();
+	String[] tokensVal = highlight.split(delimiters);
+	String[] tokensVal_onto=new String[ontocons.size()];
+	TreeSet sb=new TreeSet();
  	   // prints the number of tokens
  		
- 	 if(ontocons.size()>1)
- 	 {
- 	 	for(int i=0;i<ontocons.size();i++)
+ 	if(ontocons.size()>1)
+ 	{
+ 		for(int i=0;i<ontocons.size();i++)
  	 	{
  	 		String ontostr=ontocons.get(i).toString().trim();
  	 		ontostr=ontostr.replaceAll("[\\(,\\)]","");
@@ -857,19 +872,19 @@ return NN.toString().trim();
  	 	}//for
  
 
-	 }//if
+	}//if
 	try{
   	if(content!=null|!content.isEmpty()){
 	 for(String token : tokensVal) {
 	 	
 	  if(!list.contains(token)){
-	  System.out.println("The content is ******************"+content);
+	  //////////System.out.println("The content is ******************"+content+token.trim());
 	java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b" + token.trim() + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
      java.util.regex.Matcher matcher = pattern.matcher(content);
 	while (matcher.find()) {
-        //System.out.println("Match found!!!");
+        //////////System.out.println("Match found!!!");
         for (int i = 0; i <= matcher.groupCount(); i++) {
-		   System.out.println(matcher.group(i));
+		   //////////System.out.println(matcher.group(i));
 		   newcontent = matcher.replaceAll("<B>" +"<font color=green>"+matcher.group(i)+ "</font>"+ "</B>");
         }//for
     	}//while
@@ -878,10 +893,11 @@ return NN.toString().trim();
     	
 	if(tokensVal_onto!=null) {
     	for( String token_onto : tokensVal_onto) {
-    			
+    			//Syste
     		 	String[] newtoken= token_onto.split("\\s+");
     			for (String jj:newtoken){
     				if(!list.contains(jj)&&newcontent!=null){
+    				////////////System.out.println("The ontological concepts"+newtoken);
 				java.util.regex.Pattern pattern_onto = java.util.regex.Pattern.compile("\\b" + jj + "\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
      			java.util.regex.Matcher matcher_onto = pattern_onto.matcher(newcontent);
     				while (matcher_onto.find()) {
@@ -889,13 +905,17 @@ return NN.toString().trim();
 				   newcontent = matcher_onto.replaceAll("<B>" +"<font color=green>"+matcher_onto.group(i)+ "</font>"+"</B>");
         			}//for
 			    	}//while
-			    	}
+			    	}//if
 			    	}//for
     		     	}//for
     	  
 	}//if
 	}
-	}catch(Exception e){e.printStackTrace();}
+	//////////System.out.println("newcontent is"+newcontent.toString().trim());
+	}catch(Exception e){e.printStackTrace();
+	
+	
+	}
 
         return newcontent;
 }//method ends
@@ -905,23 +925,23 @@ return NN.toString().trim();
 
 <%!
 public ArrayList<Object[]> Freq_Sorting(ArrayList al_weight) {
+																																																																																																																																																																																																																												
 
-
-        Object[] bfSort = new Object[al_weight.size()];
+      																																																																																																																																																																																																																																																																																																																																																																																 																																																																																																																																									 Object[] bfSort = new Object[al_weight.size()];
         double sumoffreq = 0.0;
         for (int i = 0; i < al_weight.size(); i++) {
 
             Object docinfo[] = (Object[]) al_weight.get(i);
             Object hit[] = new Object[8];
 
-           hit[0] = docinfo[0]; //common-term score
-           hit[1] = docinfo[1];//full-string
-	   hit[2]=docinfo[2]; //pagenumber
-	   hit[3]=docinfo[3];//topic
-	   hit[4]=docinfo[4];//level
-	   hit[5]=docinfo[5];//Year
-	   hit[6]=docinfo[6];//classificationLevel
-        hit[7]=docinfo[7];//Filename
+		      hit[0] = docinfo[0]; //common-term score
+		      hit[1] = docinfo[1];//full-string
+		   	 hit[2]=docinfo[2]; //pagenumber
+			 hit[3]=docinfo[3];//topic
+			 hit[4]=docinfo[4];//level
+			 hit[5]=docinfo[5];//Year
+			 hit[6]=docinfo[6];//classificationLevel
+		      hit[7]=docinfo[7];//Filename
             bfSort[i] = hit;
         }
 
@@ -954,7 +974,7 @@ public ArrayList<Object[]> Freq_Sorting(ArrayList al_weight) {
         for (int i = 0; i < bfSort.length; i++) {
             Object o[] = (Object[]) bfSort[i];
 	 
-         System.out.println("The sorted resultsfreq_sorting"+o[0].toString()+o[1].toString());
+         //////////////System.out.println("The sorted resultsfreq_sorting"+o[0].toString()+o[1].toString());
 	rankresult_final.add(o);
 		
 
@@ -968,3 +988,4 @@ public ArrayList<Object[]> Freq_Sorting(ArrayList al_weight) {
 %>
 </BODY>
 </HTML>
+

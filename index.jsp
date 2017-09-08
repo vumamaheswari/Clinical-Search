@@ -1,10 +1,10 @@
 <HTML>
     <HEAD>
-        <TITLE>Search Patient's PMR to retrieve CPGs</TITLE>
+        <TITLE>Submitting PMR query</TITLE>
     </HEAD>
   <body bgcolor="#ffffe">
     <BODY>
-        <H1>Search Patient's PMR to retrieve CPGs</H1>
+        <H1>Submitting PMR query</H1>
         <FORM ACTION="medicalsearch.jsp" METHOD="POST">
             PastMedicalHistory:
             <BR>  
@@ -18,7 +18,7 @@
           border-color: #CCFF99 #999999 #999999 #CCFF99}
 </style>
 
-   	    
+	    
 <input type="submit" name="Submit" value="PMRHistorySearch" 
        onmouseover="this.className='style2'"
        onmouseout="this.className='style1'" class="style1"> 
@@ -84,5 +84,6 @@
 	  
         </FORM>
     </BODY>
+    <%@ include file="footer.html" %>
 <HTML>
 
