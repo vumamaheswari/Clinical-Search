@@ -14,6 +14,10 @@ Lucene-4.10.3,
 apache-tomcat-8.0.32,
 luke-with-deps.jar (to check the Lucene index).
 
+Reference
+=======
+If you use the code, please cite the following paper.
+Vasanthakumar, E., & Bond, F. (2018). A Semantic Multi-Field Clinical Search for Patient Medical Records, Cybernetics and Information Technologies, 18(1), 171-182. doi: https://doi.org/10.2478/cait-2018-0014
 
 Steps to run:
 =======
